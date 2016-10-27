@@ -1,6 +1,5 @@
 package lib
 
-
 func a() {
 
 	// extend Println
