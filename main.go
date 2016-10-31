@@ -1,8 +1,8 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import "github.com/hooph00p/secretary/lib"
 
 func main() {
-	g := gin.Default()
-	g.Run()
+	s := new(lib.Secretary)
+	s.Run()
 }

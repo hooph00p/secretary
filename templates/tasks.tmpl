@@ -1,0 +1,79 @@
+{{ define "tasks" }}
+<nav class="nav has-shadow">
+    <div class="container">
+        <div class="nav-left">
+            <a class="nav-item is-tab is-active" href="#">Tasks</a>
+        </div>
+    </div>
+</nav>
+<section class="section">
+    <div class="container">
+        <h1 class="title">Tasks</h1>
+        <hr>
+        <div class="columns">
+            <div class="column is-3">
+                <aside class="menu">
+                    <p class="menu-label">
+                        General
+                    </p>
+                    <ul class="menu-list">
+                        <!-- <li><a class="" href="#">View Tasks</a></li> -->
+                        <li><a class="is-active" href="#">New Task</a></li>
+                        <!-- <li><a class="" href="#">Edit Task</a></li> -->
+                        <!-- <li><a class="" href="#">Remove Task</a></li> -->
+                    </ul>
+                </aside>
+            </div>
+            <div class="column">
+                <div class="box">
+                    <div class="column">
+                        <h1 class="title is-2">New Task</h1>
+                    </div>
+                    <form action="/create" method="post">
+                        <div class="column">
+                            <label class="label">Command</label>
+                            <p class="control">
+                                <input class="input" type="text" name="command" placeholder="go get github.com/hooph00p/secretary">
+                            </p>
+
+                            <div class="columns">
+                                <div class="column">
+                                    <p class="control">
+                                        <label class="label">Start</label>
+                                        <input class="input" type="date" name="start" placeholder="March 22, 2233">
+                                    </p>
+                                    <p class="control">
+                                        <label class="label">
+                                      <input class="checkbox"type="checkbox">
+                                      Perpetual
+                                      </label>
+                                    </p>
+                                    <p class="control">
+                                        <label class="label">End</label>
+                                        <input class="input" type="date" name="end">
+                                    </p>
+                                    <p class="control">
+                                        <label class="label">
+                                      <input type="checkbox" name="repeatBox"/>
+                                      Repeat
+                                    </label>
+                                    </p>
+                                    <p class="control">
+                                        <label class="label">Times:</label>
+                                        <input class="input" type="number" name="repeat">
+                                    </p>
+                                    <p class="control">
+                                        <label class="label">Interval</label>
+                                        <input class="input" type="number" name="interval">
+                                    </p>
+                                </div>
+                            </div>
+                            <input class="button" value="Create New Task" type="submit" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{{ end }}

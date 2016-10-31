@@ -1,0 +1,21 @@
+{
+  "name": "secretary",
+  "authors": [
+    "hooph00p <thejaredhooper@gmail.com>"
+  ],
+  "description": "A Job Scheduler in Go.",
+  "main": "main.go",
+  "license": "MIT",
+  "homepage": "https://github.com/hooph00p/secretary",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    ".go"
+  ],
+  "dependencies": {
+    "bulma": "^0.2.3"
+  }
+}
