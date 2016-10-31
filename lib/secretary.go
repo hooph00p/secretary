@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
@@ -16,8 +17,7 @@ const (
 )
 
 var (
-	app = kingpin.New("secretary", "A Scheduling Service. Web GUI and Command Line.")
-
+	app           = kingpin.New("secretary", "A Scheduling Service. Web GUI and Command Line.")
 	shell         = app.Command("shell", "Run the Secretary Shell.")
 	shellCommand  = shell.Flag("command", "Command String.").Required().String()
 	shellInterval = shell.Flag("interval", "Interval in Seconds. Must be positive.").Default("1").Int()
@@ -31,9 +31,17 @@ type Secretary struct {
 
 func (s *Secretary) Run() {
 	app.Version(VERSION)
-	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
-	case shell.FullCommand():
-		s.shell()
+
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		fmt.Print("Enter: ")
+		text, _ := reader.ReadString('\n')
+		text = strings.TrimSpace(text)
+		args := strings.SplitN(text, " ", 2)
+		switch kingpin.MustParse(app.Parse(args)) {
+		case shell.FullCommand():
+			s.shell()
+		}
 	}
 }
 
@@ -128,6 +136,7 @@ func (s *Secretary) shell() {
 		select {
 		case <-doneChan:
 			P("Completed task.")
+			return
 		}
 	}
 }
