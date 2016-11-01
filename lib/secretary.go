@@ -17,12 +17,13 @@ const (
 )
 
 var (
-	app           = kingpin.New("secretary", "A Scheduling Service. Web GUI and Command Line.")
-	shell         = app.Command("shell", "Run the Secretary Shell.")
-	shellCommand  = shell.Flag("command", "Command String.").Required().String()
-	shellInterval = shell.Flag("interval", "Interval in Seconds. Must be positive.").Default("1").Int()
-	shellRepeat   = shell.Flag("repeat", "Times to repeat. Set negative to repeat infinitely.").Default("1").Int()
-	shellOutfile  = shell.Flag("outfile", "Output file.").File()
+	app = kingpin.New("secretary", "A Scheduling Service. Web GUI and Command Line.")
+
+	add         = app.Command("add", "Run the Secretary Shell.")
+	addCommand  = add.Flag("command", "Command String.").Required().String()
+	addInterval = add.Flag("interval", "Interval in Seconds. Must be positive.").Default("1").Int()
+	addRepeat   = add.Flag("repeat", "Times to repeat. Set negative to repeat infinitely.").Default("1").Int()
+	addOutfile  = add.Flag("outfile", "Output file.").File()
 )
 
 type Secretary struct {
@@ -33,48 +34,56 @@ func (s *Secretary) Run() {
 	app.Version(VERSION)
 
 	reader := bufio.NewReader(os.Stdin)
+
 	for {
 		fmt.Print("Enter: ")
 		text, _ := reader.ReadString('\n')
 		text = strings.TrimSpace(text)
 		args := strings.SplitN(text, " ", 2)
 		switch kingpin.MustParse(app.Parse(args)) {
-		case shell.FullCommand():
-			s.shell()
+		case add.FullCommand():
+
+			defer func() {
+				if r := recover(); r != nil {
+					fmt.Println("Recovered in f", r)
+				}
+			}()
+
+			command := *addCommand
+			P("Command:", command)
+			if command == "" {
+				panic("Uh... you gonna give me a command?")
+			}
+
+			interval := *addInterval
+			if interval != 0 {
+				P("Interval:", interval)
+			}
+			if interval < 0 {
+				panic("Interval must be positive.")
+			}
+
+			repeat := *addRepeat
+			if repeat != 0 {
+				P("Repeat:", repeat)
+			}
+			if repeat < 0 {
+				P("Infinitely Repeating.")
+			}
+
+			var outf *os.File
+			if *addOutfile != nil {
+				P("Outfile:", *addOutfile)
+				outf = *addOutfile
+			}
+			defer outf.Close()
+
+			s.add()
 		}
 	}
 }
 
-func (s *Secretary) shell() {
-
-	command := *shellCommand
-	P("Command:", command)
-	if command == "" {
-		panic("Uh... you gonna give me a command?")
-	}
-
-	interval := *shellInterval
-	if interval != 0 {
-		P("Interval:", interval)
-	}
-	if interval < 0 {
-		panic("Interval must be positive.")
-	}
-
-	repeat := *shellRepeat
-	if repeat != 0 {
-		P("Repeat:", repeat)
-	}
-	if repeat < 0 {
-		P("Infinitely Repeating.")
-	}
-
-	var outf *os.File
-	if *shellOutfile != nil {
-		P("Outfile:", *shellOutfile)
-		outf = *shellOutfile
-	}
-	defer outf.Close()
+func (s *Secretary) add() {
 
 	ticker := time.NewTicker(time.Second * time.Duration(interval))
 	doneChan := make(chan bool)
@@ -128,15 +137,4 @@ func (s *Secretary) shell() {
 			}
 		}
 	}()
-
-	// Infinite loop that listens
-	// on the done channel for the
-	// completion of the goroutine.
-	for {
-		select {
-		case <-doneChan:
-			P("Completed task.")
-			return
-		}
-	}
 }
