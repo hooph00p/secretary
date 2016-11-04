@@ -1,41 +1,37 @@
 package lib
 
-import "os"
+import (
+	"os"
+	"os/exec"
+	"strconv"
+
+	"github.com/hooph00p/secretary/lib/util"
+)
 
 type Task struct {
-	Command    *string
-	Interval   *int
-	Repeat     *int
-	OutputFile **os.File
+	i int
 }
 
-func NewTask(addCommand *string, addInterval *int, addRepeat *int, addOutfile **os.File) *Task {
-	command := *addCommand
-	P("Command:", command)
-	if command == "" {
-		panic("Uh... you gonna give me a command?")
+func (t *Task) loc() string {
+	return "./test/" + strconv.Itoa(t.i) + ".log"
+}
+
+func (t *Task) Run() (string, error) {
+	file, err := os.Create(t.loc())
+	defer file.Close()
+	if err != nil {
+		panic(err)
 	}
 
-	interval := *addInterval
-	if interval != 0 {
-		P("Interval:", interval)
-	}
-	if interval < 0 {
-		panic("Interval must be positive.")
-	}
-
-	repeat := *addRepeat
-	if repeat != 0 {
-		P("Repeat:", repeat)
-	}
-	if repeat < 0 {
-		P("Infinitely Repeating.")
+	cmd := exec.Command("ping", "google.com")
+	cmd.Stdout = file
+	cmd.Stderr = file
+	err = cmd.Run()
+	if err != nil {
+		panic(err)
 	}
 
-	var outf *os.File
-	if *addOutfile != nil {
-		P("Outfile:", *addOutfile)
-		outf = *addOutfile
-	}
-	defer outf.Close()
+	util.PL(t.i, "Finishing")
+
+	return "Finished task " + strconv.Itoa(t.i), nil
 }
