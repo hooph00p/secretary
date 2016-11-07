@@ -39,48 +39,62 @@ func format(z ...interface{}) (x []interface{}) {
 }
 
 func Parse(text string) ([]string, error) {
+	/**
+	 * Cited: https://github.com/laurent22/massren/blob/ae4c57da1e09a95d9383f7eb645a9f69790dec6c/main.go#L172
+	 */
+	const (
+		START  string = "START"
+		QUOTES string = "QUOTES"
+		ARG    string = "ARG"
+	)
+
 	var args []string
-	state := "start"
-	current := ""
+	var current string
+
+	state := START
 	quote := "\""
+
+	/**
+	* Iterate the String, character by character.
+	 */
 	for i := 0; i < len(text); i++ {
 		c := text[i]
 
-		if state == "quotes" {
+		switch {
+
+		case state == QUOTES: // Step through Quoted String
 			if string(c) != quote {
 				current += string(c)
 			} else {
 				args = append(args, current)
 				current = ""
-				state = "start"
+				state = START
 			}
 			continue
-		}
 
-		if c == '"' || c == '\'' {
-			state = "quotes"
+		case c == '"' || c == '\'': // Initiate Quoted String Step-Through
+			state = QUOTES
 			quote = string(c)
 			continue
-		}
 
-		if state == "arg" {
+		case state == ARG: // Step through regular space/tab-delimited argument
 			if c == ' ' || c == '\t' {
 				args = append(args, current)
 				current = ""
-				state = "start"
+				state = START
 			} else {
 				current += string(c)
 			}
 			continue
-		}
 
-		if c != ' ' && c != '\t' {
-			state = "arg"
+		case c != ' ' && c != '\t': // Start Argument State
+			state = ARG
 			current += string(c)
+
 		}
 	}
 
-	if state == "quotes" {
+	if state == QUOTES {
 		return []string{}, errors.New(fmt.Sprintf("Unclosed quote in command line: %s", text))
 	}
 
