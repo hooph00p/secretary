@@ -9,25 +9,27 @@ import (
 )
 
 type Task struct {
-	i int
+	i   int
+	out *os.File
 }
 
-func (t *Task) loc() string {
-	return "./test/" + strconv.Itoa(t.i) + ".log"
-}
-
-func (t *Task) Run() (string, error) {
-	file, err := os.Create(t.loc())
-	defer file.Close()
-	if err != nil {
-		panic(err)
+func (t *Task) Out() *os.File {
+	if o == "" {
+		t.out = os.Stdout
+	} else {
+		os.Create(o)
+		t.out, _ = os.Open(o)
 	}
+}
 
-	cmd := exec.Command("ping", "google.com")
-	cmd.Stdout = file
-	cmd.Stderr = file
-	err = cmd.Run()
-	if err != nil {
+func (t *Task) Run(args []string) (string, error) {
+
+	cmd := exec.Command(args[0], args[1:]...)
+	cmd.Stdout = t.out
+	cmd.Stderr = t.out
+	defer t.out.Close()
+
+	if err := cmd.Run(); err != nil {
 		panic(err)
 	}
 

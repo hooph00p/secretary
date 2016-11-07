@@ -3,7 +3,7 @@ package util
 import (
 	"errors"
 	"fmt"
-	"os"
+	"strconv"
 )
 
 const (
@@ -23,11 +23,8 @@ func PN() {
 	fmt.Println("")
 }
 
-func LOG(z ...interface{}) {
-	f, err := os.Open(outfile)
-	if err != nil {
-		f = os.Create(outfile)
-	}
+func Loc(i int) string {
+	return "./test/" + strconv.Itoa(i) + ".log"
 }
 
 func format(z ...interface{}) (x []interface{}) {

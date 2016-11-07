@@ -38,7 +38,7 @@ func (s *Secretary) Run() {
 	go func() {
 		for {
 			msg := <-messages
-			util.LOG(msg)
+			util.PL(msg)
 		}
 	}()
 
@@ -54,7 +54,7 @@ func (s *Secretary) Run() {
 		case run.FullCommand():
 			for i := range s.Tasks {
 				go func(t *Task) {
-					msg, err := t.Run()
+					msg, err := t.Run([]string{"ping", "google.com"})
 					util.PL("m,e:", msg, err)
 					if err == nil {
 						messages <- msg
