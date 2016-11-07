@@ -57,6 +57,7 @@ func Parse(text string) ([]string, error) {
 	/**
 	* Iterate the String, character by character.
 	 */
+parsing:
 	for i := 0; i < len(text); i++ {
 		c := text[i]
 
@@ -70,12 +71,12 @@ func Parse(text string) ([]string, error) {
 				current = ""
 				state = START
 			}
-			continue
+			continue parsing
 
 		case c == '"' || c == '\'': // Initiate Quoted String Step-Through
 			state = QUOTES
 			quote = string(c)
-			continue
+			continue parsing
 
 		case state == ARG: // Step through regular space/tab-delimited argument
 			if c == ' ' || c == '\t' {
@@ -85,7 +86,7 @@ func Parse(text string) ([]string, error) {
 			} else {
 				current += string(c)
 			}
-			continue
+			continue parsing
 
 		case c != ' ' && c != '\t': // Start Argument State
 			state = ARG
@@ -95,19 +96,11 @@ func Parse(text string) ([]string, error) {
 	}
 
 	if state == QUOTES {
-		return []string{}, errors.New(fmt.Sprintf("Unclosed quote in command line: %s", text))
+		return args, errors.New(fmt.Sprintf("Unclosed quote in command line: %s", text))
 	}
 
 	if current != "" {
 		args = append(args, current)
-	}
-
-	if len(args) <= 0 {
-		return []string{}, errors.New("Empty command line")
-	}
-
-	if len(args) == 1 {
-		return args, nil
 	}
 
 	return args, nil
