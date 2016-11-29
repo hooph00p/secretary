@@ -9,31 +9,31 @@ import (
 )
 
 type Task struct {
-	i   int
-	out *os.File
+	TaskId int
 }
 
-func (t *Task) Out() *os.File {
+func (t *Task) Run(args []string, o string) (string, error) {
+
+	var outStream *os.File
 	if o == "" {
-		t.out = os.Stdout
+		outStream = os.Stdout
 	} else {
 		os.Create(o)
-		t.out, _ = os.Open(o)
+		outStream, _ = os.Open(o)
 	}
-}
-
-func (t *Task) Run(args []string) (string, error) {
+	defer outStream.Close()
 
 	cmd := exec.Command(args[0], args[1:]...)
-	cmd.Stdout = t.out
-	cmd.Stderr = t.out
-	defer t.out.Close()
+	cmd.Stderr = outStream
+	cmd.Stdout = outStream
+
+	util.PL(t.TaskId, "Starting")
 
 	if err := cmd.Run(); err != nil {
 		panic(err)
 	}
 
-	util.PL(t.i, "Finishing")
+	util.PL(t.TaskId, "Finishing")
 
-	return "Finished task " + strconv.Itoa(t.i), nil
+	return "Finished task " + strconv.Itoa(t.TaskId), nil
 }
